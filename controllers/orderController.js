@@ -72,3 +72,15 @@ export const deleteOrder = async (req, res) => {
     res.status(500).json({ success: false, message: error.message  });
   }
 };
+
+// @desc    Get logged in user orders
+// @route   GET /api/orders/myorders
+// @access  Private
+export const getMyOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ email: req.user.email }).sort({ createdAt: -1 });
+    res.status(200).json({ success: true, message: 'Retrieved successfully', count: orders.length, data: orders });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

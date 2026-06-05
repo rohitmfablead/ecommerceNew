@@ -1,4 +1,5 @@
 import WishlistItem from '../models/WishlistItem.js';
+import Product from '../models/Product.js';
 
 // @desc    Get all wishlistItems
 // @route   GET /api/wishlistItems
@@ -70,5 +71,32 @@ export const deleteWishlistItem = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message  });
+  }
+};
+
+// @desc    Get logged in user wishlist
+// @route   GET /api/wishlistItems/mywishlist
+// @access  Private
+export const getMyWishlist = async (req, res) => {
+  try {
+    const items = await WishlistItem.find({ user: req.user._id.toString() }).sort({ createdAt: -1 });
+    
+    // Manually populate product details since it's a string
+    const populatedItems = [];
+    for (const item of items) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        populatedItems.push({
+          _id: item._id,
+          user: item.user,
+          addedOn: item.addedOn,
+          product: product
+        });
+      }
+    }
+    
+    res.status(200).json({ success: true, message: 'Retrieved successfully', count: populatedItems.length, data: populatedItems });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

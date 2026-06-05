@@ -5,9 +5,13 @@ import {
   createWishlistItem,
   updateWishlistItem,
   deleteWishlistItem,
+  getMyWishlist
 } from '../controllers/wishlistItemController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+router.route('/mywishlist').get(protect, getMyWishlist);
 
 router.route('/')
   .get(getWishlistItems)

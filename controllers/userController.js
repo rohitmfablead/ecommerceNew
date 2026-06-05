@@ -1,4 +1,7 @@
 import User from '../models/User.js';
+import Order from '../models/Order.js';
+import WishlistItem from '../models/WishlistItem.js';
+import Coupon from '../models/Coupon.js';
 import generateToken from '../utils/generateToken.js';
 
 // @desc    Auth user & get token
@@ -77,12 +80,42 @@ export const getUserProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        rewardPoints: user.rewardPoints,
+        memberTier: user.memberTier
       });
     } else {
       res.status(404).json({ success: false, message: 'User not found'  });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message  });
+  }
+};
+
+// @desc    Get user dashboard stats
+// @route   GET /api/users/profile/stats
+// @access  Private
+export const getUserStats = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const orderCount = await Order.countDocuments({ email: user.email });
+    const wishlistCount = await WishlistItem.countDocuments({ user: user._id.toString() });
+    const couponCount = await Coupon.countDocuments({ status: 'Active' });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalOrders: orderCount,
+        wishlist: wishlistCount,
+        coupons: couponCount,
+        rewardPoints: user.rewardPoints || 0,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

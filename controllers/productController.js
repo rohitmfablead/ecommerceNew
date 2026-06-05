@@ -5,7 +5,39 @@ import Product from '../models/Product.js';
 // @access  Public
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find({});
+    const { category, subcategory, brand, color, rating, minPrice, maxPrice, search, sort, condition } = req.query;
+
+    let query = {};
+    if (category) query.category = { $in: category.split(',') };
+    if (subcategory) query.subcategory = { $in: subcategory.split(',') };
+    if (brand) query.brand = { $in: brand.split(',') };
+    if (color) query['variations.color'] = { $in: color.split(',') };
+    if (rating) query.averageRating = { $gte: Number(rating) };
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+    if (search) query.name = { $regex: search, $options: 'i' };
+    
+    if (condition) {
+      switch (condition) {
+        case 'Featured': query.isFeatured = true; break;
+        case 'Best Selling': query.isBestSelling = true; break;
+        case 'New Arrival': query.isNewArrival = true; break;
+        case 'Trending': query.isTrending = true; break;
+        case 'Recommended': query.isRecommended = true; break;
+        case 'Flash Sale': query.isFlashSale = true; break;
+      }
+    }
+
+    let sortObj = {};
+    if (sort === 'low') sortObj.price = 1;
+    else if (sort === 'high') sortObj.price = -1;
+    else if (sort === 'rating') sortObj.averageRating = -1;
+    else if (sort === 'newest') sortObj.createdAt = -1;
+
+    const products = await Product.find(query).sort(sortObj);
     res.status(200).json({ success: true, message: 'Retrieved successfully', count: products.length, data: products });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message  });

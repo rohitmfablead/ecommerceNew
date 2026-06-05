@@ -5,9 +5,16 @@ import {
   createCartItem,
   updateCartItem,
   deleteCartItem,
+  addToMyCart,
+  getMyCartItems
 } from '../controllers/cartItemController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+router.route('/mycart')
+  .get(protect, getMyCartItems)
+  .post(protect, addToMyCart);
 
 router.route('/')
   .get(getCartItems)

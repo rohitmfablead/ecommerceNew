@@ -7,17 +7,19 @@ import {
   deleteUser,
   authUser,
   registerUser,
-  getUserProfile,
-  logoutUser
-} from '../controllers/userController.js';
-import { protect } from '../middleware/authMiddleware.js';
-
-const router = express.Router();
-
-router.post('/login', authUser);
-router.post('/register', registerUser);
-router.post('/logout', logoutUser);
-router.route('/profile').get(protect, getUserProfile);
+        getUserProfile,
+        logoutUser,
+        getUserStats
+      } from '../controllers/userController.js';
+      import { protect } from '../middleware/authMiddleware.js';
+      
+      const router = express.Router();
+      
+      router.post('/login', authUser);
+      router.post('/register', registerUser);
+      router.post('/logout', logoutUser);
+      router.route('/profile').get(protect, getUserProfile);
+      router.route('/profile/stats').get(protect, getUserStats);
 
 router.route('/')
   .get(getUsers)

@@ -2,7 +2,17 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const schema = mongoose.Schema(
-  { name: String, email: { type: String, unique: true }, password: { type: String, required: true }, phone: String, orders: { type: Number, default: 0 }, joined: String, status: { type: String, enum: ['Active', 'Blocked'], default: 'Active' } },
+  { 
+    name: String, 
+    email: { type: String, unique: true }, 
+    password: { type: String, required: true }, 
+    phone: String, 
+    orders: { type: Number, default: 0 }, 
+    joined: String, 
+    status: { type: String, enum: ['Active', 'Blocked'], default: 'Active' },
+    rewardPoints: { type: Number, default: 0 },
+    memberTier: { type: String, enum: ['Bronze', 'Silver', 'Gold', 'Platinum'], default: 'Bronze' }
+  },
   { timestamps: true }
 );
 
