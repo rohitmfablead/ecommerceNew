@@ -1,4 +1,5 @@
 import Product from '../models/Product.js';
+import Category from '../models/Category.js';
 
 // @desc    Fetch all products
 // @route   GET /api/products
@@ -84,6 +85,11 @@ export const createProduct = async (req, res) => {
     });
 
     const createdProduct = await product.save();
+    
+    if (category) {
+      await Category.findOneAndUpdate({ name: category }, { $inc: { count: 1 } });
+    }
+
     res.status(201).json({ success: true, message: 'Created successfully', data: createdProduct });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message  });
@@ -100,8 +106,19 @@ export const updateProduct = async (req, res) => {
       updateData.image = `/uploads/${req.file.filename}`;
     }
 
+    const oldProduct = await Product.findById(req.params.id);
     const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    
     if (product) {
+      if (oldProduct && oldProduct.category !== product.category) {
+        if (oldProduct.category) {
+          await Category.findOneAndUpdate({ name: oldProduct.category }, { $inc: { count: -1 } });
+        }
+        if (product.category) {
+          await Category.findOneAndUpdate({ name: product.category }, { $inc: { count: 1 } });
+        }
+      }
+
       res.status(200).json({ success: true, message: 'Retrieved successfully', data: product });
     } else {
       res.status(404).json({ success: false, message: 'Product not found'  });
@@ -118,6 +135,10 @@ export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (product) {
+      if (product.category) {
+        await Category.findOneAndUpdate({ name: product.category }, { $inc: { count: -1 } });
+      }
+
       res.status(200).json({ success: true, message: 'Product removed'  });
     } else {
       res.status(404).json({ success: false, message: 'Product not found'  });

@@ -28,6 +28,7 @@ import cmsPageContentRoutes from './routes/cmsPageContentRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import brandRoutes from './routes/brandRoutes.js';
 import homeSectionRoutes from './routes/homeSectionRoutes.js';
+import headerSettingRoutes from './routes/headerSettingRoutes.js';
 
 dotenv.config();
 
@@ -74,6 +75,7 @@ app.use('/api/cmspagecontents', cmsPageContentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/homesections', homeSectionRoutes);
+app.use('/api/headersettings', headerSettingRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');
