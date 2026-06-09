@@ -46,9 +46,14 @@ export const createCmsSection = async (req, res) => {
 // @access  Public
 export const updateCmsSection = async (req, res) => {
   try {
-    const item = await CmsSection.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    // Use $set so partial updates (e.g. toggle isActive) don't overwrite other fields like image
+    const item = await CmsSection.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true, runValidators: false }
+    );
     if (item) {
-      res.status(200).json({ success: true, message: 'Retrieved successfully', data: item });
+      res.status(200).json({ success: true, message: 'Updated successfully', data: item });
     } else {
       res.status(404).json({ success: false, message: 'CmsSection not found'  });
     }
