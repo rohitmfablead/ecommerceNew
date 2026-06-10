@@ -46,7 +46,7 @@ export const createInventoryLog = async (req, res) => {
 // @access  Public
 export const updateInventoryLog = async (req, res) => {
   try {
-    const item = await InventoryLog.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const item = await InventoryLog.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' });
     if (item) {
       res.status(200).json({ success: true, message: 'Retrieved successfully', data: item });
     } else {

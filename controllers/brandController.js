@@ -46,7 +46,7 @@ export const createBrand = async (req, res) => {
 // @access  Public
 export const updateBrand = async (req, res) => {
   try {
-    const item = await Brand.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const item = await Brand.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' });
     if (item) {
       res.status(200).json({ success: true, message: 'Retrieved successfully', data: item });
     } else {

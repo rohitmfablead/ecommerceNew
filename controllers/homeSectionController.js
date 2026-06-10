@@ -96,7 +96,7 @@ export const createHomeSection = async (req, res) => {
 // @access  Private/Admin
 export const updateHomeSection = async (req, res) => {
   try {
-    const section = await HomeSection.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const section = await HomeSection.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' });
     if (section) {
       res.status(200).json({ success: true, message: 'Section updated successfully', data: section });
     } else {

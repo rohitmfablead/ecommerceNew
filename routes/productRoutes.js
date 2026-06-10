@@ -8,6 +8,7 @@ import {
   updateProduct,
   deleteProduct,
 } from '../controllers/productController.js';
+import { optionalAuth } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -44,11 +45,11 @@ const upload = multer({
 });
 
 router.route('/')
-  .get(getProducts)
+  .get(optionalAuth, getProducts)
   .post(upload.single('image'), createProduct);
 
 router.route('/:id')
-  .get(getProductById)
+  .get(optionalAuth, getProductById)
   .put(upload.single('image'), updateProduct)
   .delete(deleteProduct);
 

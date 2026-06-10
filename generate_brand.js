@@ -71,7 +71,7 @@ export const create${entity} = async (req, res) => {
 // @access  Public
 export const update${entity} = async (req, res) => {
   try {
-    const item = await ${entity}.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const item = await ${entity}.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' });
     if (item) {
       res.json(item);
     } else {

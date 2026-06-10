@@ -28,7 +28,7 @@ export const updateHeaderSetting = async (req, res) => {
   try {
     let setting = await HeaderSetting.findOne();
     if (setting) {
-      setting = await HeaderSetting.findOneAndUpdate({}, req.body, { new: true, runValidators: true });
+      setting = await HeaderSetting.findOneAndUpdate({}, req.body, { returnDocument: 'after', runValidators: true });
     } else {
       setting = await HeaderSetting.create(req.body);
     }

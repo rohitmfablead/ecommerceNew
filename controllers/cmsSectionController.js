@@ -50,7 +50,7 @@ export const updateCmsSection = async (req, res) => {
     const item = await CmsSection.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
-      { new: true, runValidators: false }
+      { returnDocument: 'after', runValidators: false }
     );
     if (item) {
       res.status(200).json({ success: true, message: 'Updated successfully', data: item });

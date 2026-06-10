@@ -172,7 +172,7 @@ export const createUser = async (req, res) => {
 // @access  Private/Admin
 export const updateUser = async (req, res) => {
   try {
-    const item = await User.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('-password');
+    const item = await User.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' }).select('-password');
     if (item) {
       res.status(200).json({ success: true, message: 'Retrieved successfully', data: item });
     } else {

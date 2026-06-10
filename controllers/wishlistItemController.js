@@ -47,7 +47,7 @@ export const createWishlistItem = async (req, res) => {
 // @access  Public
 export const updateWishlistItem = async (req, res) => {
   try {
-    const item = await WishlistItem.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const item = await WishlistItem.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' });
     if (item) {
       res.status(200).json({ success: true, message: 'Retrieved successfully', data: item });
     } else {
@@ -96,6 +96,42 @@ export const getMyWishlist = async (req, res) => {
     }
     
     res.status(200).json({ success: true, message: 'Retrieved successfully', count: populatedItems.length, data: populatedItems });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Add item to my wishlist
+// @route   POST /api/wishlistItems/mywishlist
+// @access  Private
+export const addToMyWishlist = async (req, res) => {
+  try {
+    const { product } = req.body;
+    const userId = req.user._id.toString();
+
+    let item = await WishlistItem.findOne({ user: userId, product });
+    if (!item) {
+      item = new WishlistItem({ user: userId, product, addedOn: new Date().toISOString() });
+      await item.save();
+    }
+    res.status(201).json({ success: true, message: 'Added to wishlist successfully', data: item });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Remove item from my wishlist
+// @route   DELETE /api/wishlistItems/mywishlist/:productId
+// @access  Private
+export const removeFromMyWishlist = async (req, res) => {
+  try {
+    const userId = req.user._id.toString();
+    const item = await WishlistItem.findOneAndDelete({ user: userId, product: req.params.productId });
+    if (item) {
+      res.status(200).json({ success: true, message: 'Removed from wishlist successfully' });
+    } else {
+      res.status(404).json({ success: false, message: 'Wishlist item not found' });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

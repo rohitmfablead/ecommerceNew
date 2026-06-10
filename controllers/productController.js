@@ -1,5 +1,7 @@
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
+import CartItem from '../models/CartItem.js';
+import WishlistItem from '../models/WishlistItem.js';
 
 // @desc    Fetch all products
 // @route   GET /api/products
@@ -39,7 +41,24 @@ export const getProducts = async (req, res) => {
     else if (sort === 'newest') sortObj.createdAt = -1;
 
     const products = await Product.find(query).sort(sortObj);
-    res.status(200).json({ success: true, message: 'Retrieved successfully', count: products.length, data: products });
+    
+    let productsData = products.map(p => p.toObject());
+    
+    if (req.user) {
+      const cartItems = await CartItem.find({ user: req.user._id });
+      const wishlistItems = await WishlistItem.find({ user: req.user._id });
+      
+      const cartProductIds = cartItems.map(item => item.product.toString());
+      const wishlistProductIds = wishlistItems.map(item => item.product.toString());
+
+      productsData = productsData.map(p => ({
+        ...p,
+        inCart: cartProductIds.includes(p._id.toString()),
+        isWishlisted: wishlistProductIds.includes(p._id.toString())
+      }));
+    }
+
+    res.status(200).json({ success: true, message: 'Retrieved successfully', count: productsData.length, data: productsData });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message  });
   }
@@ -52,7 +71,15 @@ export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (product) {
-      res.status(200).json({ success: true, message: 'Retrieved successfully', data: product });
+      let productData = product.toObject();
+      if (req.user) {
+        const cartItem = await CartItem.findOne({ user: req.user._id, product: product._id });
+        const wishlistItem = await WishlistItem.findOne({ user: req.user._id, product: product._id });
+        
+        productData.inCart = !!cartItem;
+        productData.isWishlisted = !!wishlistItem;
+      }
+      res.status(200).json({ success: true, message: 'Retrieved successfully', data: productData });
     } else {
       res.status(404).json({ success: false, message: 'Product not found'  });
     }
@@ -107,7 +134,7 @@ export const updateProduct = async (req, res) => {
     }
 
     const oldProduct = await Product.findById(req.params.id);
-    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { returnDocument: 'after' });
     
     if (product) {
       if (oldProduct && oldProduct.category !== product.category) {
